@@ -416,8 +416,3 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
-
-package.json
-package-lock.json
-token-store.json
-frontend/
