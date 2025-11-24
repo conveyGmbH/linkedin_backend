@@ -30,7 +30,7 @@ if (!clientId || !clientSecret) {
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
-    res.end(JSON.stringify({ a: 1 }, null, 3));
+    res.send('Hallo! linkedin backend läuft..');
 });
 
 // Callback-Route für LinkedIn
