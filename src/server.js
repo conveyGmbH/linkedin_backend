@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const TokenStore = require('./token-store.js');
 module.exports = TokenStore;
-const port = 3000;
+const port = process.env.PORT || 3000;
 require('dotenv').config({
   path: path.join(__dirname, '..', '.env')
 });
