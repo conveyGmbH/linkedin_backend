@@ -28,7 +28,7 @@ if (!clientId || !clientSecret) {
 
 // Statische Dateien bereitstellen (index.html)
 app.use(express.static(path.join(__dirname)));
-
+    
 app.get('/', (req, res) => {
     res.send('Hallo! linkedin backend läuft..');
 });
@@ -38,8 +38,11 @@ app.get('/auth/callback', (req, res) => {
     const code = req.query.code;
     const state = req.query.state;
 
-    const redirectUri = 'http://localhost:3000/auth/callback'; // redirect für das Token
+    const redirectUri = `http://localhost:${port}/auth/callback`; // redirect für das Token
     
+    if (!code) {
+        return res.send("No authorization code" );
+    }
     const params = new URLSearchParams({
         grant_type: "authorization_code",
         code: code,
@@ -109,14 +112,14 @@ app.get('/token/callback', (req, res) => {
 
             const data = await response.json();
             //console.log(data);
-            /*res.send(`
+            res.send(`
                 <h1>LinkedIn Daten Callback https://api.linkedin.com/v2/userinfo </h1>
                 <p>Data: <strong>${JSON.stringify(data)}</strong></p>
-            `);*/
+            `);
             //res.redirect("myapp://auth?code=" + code);
             // 4. Alles als URL-Parameter an App zurückgeben
             const redirectUrl = `myapp://auth?data=${encodeURIComponent(data)}`;
-            res.redirect(redirectUrl);  // <- Hier wird die App geöffnet
+            //res.redirect(redirectUrl);  // <- Hier wird die App geöffnet
         } catch (err) {
             console.error("Fehler beim fetchen von Daten:", err);
         }
@@ -124,19 +127,21 @@ app.get('/token/callback', (req, res) => {
 });
 //
 app.get("/api/linkedin/adaccounts", async (req, res) => {
+    const token = req.query.myToken; //req.query.myToken
   try {
     // LinkedIn REST endpoint
-    const tokens = TokenStore.loadTokens();
-    if (!tokens?.access_token) {
+    //const tokens = TokenStore.loadTokens();
+    if (!token) {
         return res.status(401).json({ error: "No access token" });
     }
 
-    const LINKEDIN_AD_ACCOUNTS_URL = "https://api.linkedin.com/rest/adAccounts";
+    const LINKEDIN_AD_ACCOUNTS_URL = "https://api.linkedin.com/rest/adAccounts?q=search&search=(status:(values:List(ACTIVE)))";
     const response = await fetch(LINKEDIN_AD_ACCOUNTS_URL, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${tokens?.access_token}`,
-        "LinkedIn-Version": "202402",  // oder aktuelle Version falls nötig
+        "Authorization": `Bearer ${token}`,
+        "LinkedIn-Version": "202401",  // oder aktuelle Version falls nötig
+        "X-Restli-Protocol-Version": "2.0.0",
         "Content-Type": "application/json"
       }
     });
