@@ -38,7 +38,7 @@ app.get('/auth/callback', (req, res) => {
     const code = req.query.code;
     const state = req.query.state;
 
-    const redirectUri = `http://localhost:${port}/auth/callback`; // redirect für das Token
+    const redirectUri = `https://lslinkedinbackend.azurewebsites.net/auth/callback`; // redirect für das Token
     
     if (!code) {
         return res.send("No authorization code" );
