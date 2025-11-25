@@ -112,7 +112,7 @@ app.get('/token/callback', async (req, res) => {
         sessions[sessionId] = json;
 
         console.log("REDIRECT to myapp://auth?session=" + sessionId);
-        res.redirect(`myapp://auth?session=${sessionId}`);
+        res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
 
     } catch (err) {
         console.error("Fehler:", err);
