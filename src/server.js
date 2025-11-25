@@ -93,39 +93,41 @@ app.get('/auth/callback', (req, res) => {
 });
 
 // Callback-Route für LinkedIn
-app.get('/token/callback', (req, res) => {
-    const token = req.query.myToken; //req.query.myToken
+app.get('/token/callback', async (req, res) => {
+    try {
+        const token = req.query.myToken;
+        console.log("TOKEN:", token);
 
-    // Einfach Anzeige des Codes im Browser
-    //res.send(`
-     //   <p>Du kannst diesen Token jetzt verwenden, um weitere Daten von linkedin anzufordern. <strong>${token}</strong> </p>
-    //`);
+        const response = await fetch("https://api.linkedin.com/v2/userinfo", {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "X-Restli-Protocol-Version": "2.0.0"
+            }
+        });
 
-    (async () => {
+        const data = await response.text();
+        console.log("LINKEDIN RESPONSE:", data);
+
+        let json;
         try {
-            const response = await fetch("https://api.linkedin.com/v2/userinfo", {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "X-Restli-Protocol-Version": "2.0.0"
-                }
-            });
-
-            const data = await response.json();
-            /*res.send(`
-                <h1>LinkedIn Daten Callback https://api.linkedin.com/v2/userinfo </h1>
-                <p>Data: <strong>${JSON.stringify(data)}</strong></p>
-            `);*/
-            //Session speichern
-            const sessionId = Math.random().toString(36).substring(2, 10);
-            sessions[sessionId] = data;
-
-            //App öffnen
-            res.redirect(`myapp://auth?session=${sessionId}`);
-        } catch (err) {
-            console.error("Fehler beim fetchen von Daten:", err);
+            json = JSON.parse(data);
+        } catch(e) {
+            console.error("JSON Parse Error", e);
+            return res.send("LinkedIn returned invalid JSON: " + data);
         }
-    })();
+
+        const sessionId = Math.random().toString(36).substring(2, 10);
+        sessions[sessionId] = json;
+
+        console.log("REDIRECT to myapp://auth?session=" + sessionId);
+        res.redirect(`myapp://auth?session=${sessionId}`);
+
+    } catch (err) {
+        console.error("Fehler:", err);
+        res.send("ERROR: " + err.message);
+    }
 });
+
 
 // 5. Cordova holt Daten ab
 app.get("/result", (req, res) => {
