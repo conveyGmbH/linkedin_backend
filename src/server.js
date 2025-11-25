@@ -34,10 +34,10 @@ app.get('/', (req, res) => {
 });
 
 // Callback-Route für LinkedIn
-app.get('/auth/callback', (req, res) => {
+app.get('/auth/callback', async (req, res) => {
     const code = req.query.code;
     const state = req.query.state;
-
+    console.log("calling /auth/callback")
     const redirectUri = `https://lslinkedinbackend.azurewebsites.net/auth/callback`; // redirect für das Token
     
     if (!code) {
@@ -50,9 +50,6 @@ app.get('/auth/callback', (req, res) => {
         client_id: clientId,
         client_secret: clientSecret
     });
-
-    // Wir müssen alles in eine async-Umgebung packen:
-    (async () => {
         try {
             const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
             method: "POST",
@@ -80,16 +77,11 @@ app.get('/auth/callback', (req, res) => {
 
             // Test redirect zum Client
               // Token speichern
-            TokenStore.saveTokens(data.access_token);
+        //TokenStore.saveTokens(data.access_token);
             //res.redirect("http://127.0.0.1:5500/frontend/index.html?status=success");
         } catch (err) {
             console.error("Fehler beim Token holen:", err);
         }
-    })();
-
-    // hier redirectUri mit code machen
-    // dann einen nodejs code schreiben der diesen code entgegennimmt und gegen das Token austauscht
-    //res.redirect(redirectUri)
 });
 
 // Callback-Route für LinkedIn
