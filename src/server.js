@@ -18,7 +18,7 @@ app.use(cors({
 // 2. Zugriff auf die Umgebungsvariablen
 const clientId = process.env.LINKEDIN_CLIENT_ID;
 const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
-
+const sessions = {};
 
 // Optional: prüfen, ob sie undefined sind
 if (!clientId || !clientSecret) {
@@ -117,15 +117,34 @@ app.get('/token/callback', (req, res) => {
                 <p>Data: <strong>${JSON.stringify(data)}</strong></p>
             `);
             //res.redirect("myapp://auth?code=" + code);
-            // 4. Alles als URL-Parameter an App zurückgeben
+            //Alles als URL-Parameter an App zurückgeben
             const redirectUrl = `myapp://auth?data=${encodeURIComponent(data)}`;
             //res.redirect(redirectUrl);  // <- Hier wird die App geöffnet
+            //Session speichern
+            const sessionId = Math.random().toString(36).substring(2, 10);
+            sessions[sessionId] = userinfo;
+
+            //App öffnen
+            res.redirect(`myapp://auth?session=${sessionId}`);
         } catch (err) {
             console.error("Fehler beim fetchen von Daten:", err);
         }
     })();
 });
-//
+
+// 5. Cordova holt Daten ab
+app.get("/result", (req, res) => {
+    const session = req.query.session;
+    const data = sessions[session];
+
+    if (!data) return res.status(404).json({ error: "session not found" });
+
+    res.json({ data });
+
+    // optional: Session löschen
+    delete sessions[session];
+});
+
 app.get("/api/linkedin/adaccounts", async (req, res) => {
     const token = req.query.myToken; //req.query.myToken
   try {
