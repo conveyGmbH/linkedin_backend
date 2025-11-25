@@ -50,38 +50,38 @@ app.get('/auth/callback', async (req, res) => {
         client_id: clientId,
         client_secret: clientSecret
     });
-        try {
-            const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: params
-            });
+    try {
+        const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
+        });
 
-            if (!response.ok) {
-                throw new Error(`LinkedIn Token Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log("TOKEN RESPONSE:", data);
-            // Einfach Anzeige des Codes im Browser
-            /*res.send(`
-                <h1>LinkedIn OAuth Callback</h1>
-                <p>Authorization Code: <strong>${code}</strong></p>
-                <p>State: <strong>${state}</strong></p>
-                <p>Du kannst diesen Code jetzt verwenden, um ein Access Token auf dem Server anzufordern.</p>
-                <p>access_token: <strong>${data.access_token}</strong></p>
-            `);*/
-            res.redirect(`/token/callback/?myToken=${data.access_token}`)
-
-            // Test redirect zum Client
-              // Token speichern
-        //TokenStore.saveTokens(data.access_token);
-            //res.redirect("http://127.0.0.1:5500/frontend/index.html?status=success");
-        } catch (err) {
-            console.error("Fehler beim Token holen:", err);
+        if (!response.ok) {
+            throw new Error(`LinkedIn Token Error: ${response.status}`);
         }
+
+        const data = await response.json();
+        console.log("TOKEN RESPONSE:", data);
+        // Einfach Anzeige des Codes im Browser
+        /*res.send(`
+            <h1>LinkedIn OAuth Callback</h1>
+            <p>Authorization Code: <strong>${code}</strong></p>
+            <p>State: <strong>${state}</strong></p>
+            <p>Du kannst diesen Code jetzt verwenden, um ein Access Token auf dem Server anzufordern.</p>
+            <p>access_token: <strong>${data.access_token}</strong></p>
+        `);*/
+        res.redirect(`/token/callback/?myToken=${data.access_token}`)
+
+        // Test redirect zum Client
+            // Token speichern
+        //TokenStore.saveTokens(data.access_token);
+        //res.redirect("http://127.0.0.1:5500/frontend/index.html?status=success");
+    } catch (err) {
+        console.error("Fehler beim Token holen:", err);
+    }
 });
 
 // Callback-Route für LinkedIn
@@ -113,8 +113,16 @@ app.get('/token/callback', async (req, res) => {
         sessions[sessionId] = json;
 
         console.log("REDIRECT to myapp://auth?session=" + sessionId);
-        res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
-
+        //res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
+        res.send(`
+        <html>
+            <body>
+            <script type="text/javascript">
+                window.location = "myapp://auth?session=${encodeURIComponent(sessionId)}";
+            </script>
+            </body>
+        </html>
+        `);
     } catch (err) {
         console.error("Fehler:", err);
         res.send("ERROR: " + err.message);
