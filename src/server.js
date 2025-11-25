@@ -117,7 +117,7 @@ app.get('/token/callback', (req, res) => {
             `);*/
             //Session speichern
             const sessionId = Math.random().toString(36).substring(2, 10);
-            sessions[sessionId] = userinfo;
+            sessions[sessionId] = data;
 
             //App öffnen
             res.redirect(`myapp://auth?session=${sessionId}`);
