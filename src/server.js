@@ -111,15 +111,10 @@ app.get('/token/callback', (req, res) => {
             });
 
             const data = await response.json();
-            //console.log(data);
-            res.send(`
+            /*res.send(`
                 <h1>LinkedIn Daten Callback https://api.linkedin.com/v2/userinfo </h1>
                 <p>Data: <strong>${JSON.stringify(data)}</strong></p>
-            `);
-            //res.redirect("myapp://auth?code=" + code);
-            //Alles als URL-Parameter an App zurückgeben
-            const redirectUrl = `myapp://auth?data=${encodeURIComponent(data)}`;
-            //res.redirect(redirectUrl);  // <- Hier wird die App geöffnet
+            `);*/
             //Session speichern
             const sessionId = Math.random().toString(36).substring(2, 10);
             sessions[sessionId] = userinfo;
