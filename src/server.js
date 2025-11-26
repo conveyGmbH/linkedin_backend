@@ -114,8 +114,10 @@ app.get('/token/callback', async (req, res) => {
         const sessionId = Math.random().toString(36).substring(2, 10);
         sessions[sessionId] = json;
 
-        console.log("REDIRECT to myapp://auth?session=" + sessionId);
-        res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
+        //console.log("REDIRECT to myapp://auth?session=" + sessionId);
+        //res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
+        console.log("REDIRECT to myapp://auth?data=" + JSON.stringify(sessions[sessionId] ));
+        res.redirect(`myapp://auth?data=${encodeURIComponent(JSON.stringify(sessions[sessionId] ))}`);
     } catch (err) {
         console.error("Fehler:", err);
         res.send("ERROR: " + err.message);
@@ -127,8 +129,10 @@ app.get('/token/callback', async (req, res) => {
 app.post("/result", (req, res) => {
     console.log("calling /result")
     const session = req.query.session;
+    console.log("SESSION SAVED:", session, sessions);
+    console.log("call /result with sessionId="+session)
+    console.log("call /result with data sessions[session]="+sessions[session])
     const data = sessions[session];
-
     if (!data) return res.status(404).json({ error: "session not found" });
 
     res.json({ data });
