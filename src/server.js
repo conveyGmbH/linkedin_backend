@@ -38,7 +38,7 @@ app.get('/auth/callback', async (req, res) => {
     const code = req.query.code;
     const state = req.query.state;
     console.log("calling /auth/callback")
-    const redirectUri = `https://lslinkedinbackend.azurewebsites.net/auth/callback`; // redirect für das Token
+    const redirectUri = "https://lslinkedinbackend.azurewebsites.net/auth/callback"; // redirect für das Token
     
     if (!code) {
         return res.send("No authorization code" );
@@ -60,6 +60,8 @@ app.get('/auth/callback', async (req, res) => {
         });
 
         if (!response.ok) {
+            const errText = await response.text();
+            console.error("LinkedIn Token Error Response:", errText);
             throw new Error(`LinkedIn Token Error: ${response.status}`);
         }
 
@@ -113,16 +115,7 @@ app.get('/token/callback', async (req, res) => {
         sessions[sessionId] = json;
 
         console.log("REDIRECT to myapp://auth?session=" + sessionId);
-        //res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
-        res.send(`
-        <html>
-            <body>
-            <script type="text/javascript">
-                window.location = "myapp://auth?session=${encodeURIComponent(sessionId)}";
-            </script>
-            </body>
-        </html>
-        `);
+        res.redirect(`myapp://auth?session=${encodeURIComponent(sessionId)}`);
     } catch (err) {
         console.error("Fehler:", err);
         res.send("ERROR: " + err.message);
