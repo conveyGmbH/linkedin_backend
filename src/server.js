@@ -124,7 +124,7 @@ app.get('/token/callback', async (req, res) => {
 
 
 // 5. Cordova holt Daten ab
-app.get("/result", (req, res) => {
+app.post("/result", (req, res) => {
     console.log("calling /result")
     const session = req.query.session;
     const data = sessions[session];
